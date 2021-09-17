@@ -102,7 +102,7 @@ export default function Home() {
             <div key={stock.id}>
               <a
                 className={styles.card}
-                href={`/stocks/${stock.id}`}
+                href={`/stock/${stock.id}`}
                 key={stock.id}
               >
                 <h3>{stock.ticker}</h3>
