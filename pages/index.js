@@ -35,6 +35,7 @@ export async function getServerSideProps({ req }) {
 export default function Home() {
   const [stocks, setStocks] = useState([]);
   const [showAdd, setShowAdd] = useState(false);
+  const [errors, setErrors] = useState([]);
 
   useEffect(() => {
     getStocks();
@@ -45,7 +46,7 @@ export default function Home() {
       const { data } = await API.graphql(graphqlOperation(listStocks));
       setStocks(data.listStocks.items);
     } catch (err) {
-      console.log("error getting stocks");
+      setErrors([...errors, "Issue with API call to get list of stocks"])
     }
   }
 
@@ -63,8 +64,13 @@ export default function Home() {
       setStocks([...stocks, data.addStock]);
       setShowAdd(false);
     } catch ({ errors }) {
-      console.error(...errors);
-      throw new Error(errors[0].message);
+      console.error("Catch error:", errors[0].message);
+      if (errors[0].message === "Error: We already have this") {
+        setErrors([...errors, errors[0].message]);
+      } else {
+        // if we get here it isn't an error we planned for.
+        throw new Error(errors[0].message);
+      }
     }
   }
 
@@ -83,6 +89,7 @@ export default function Home() {
       throw new Error(errors[0].message);
     }
   }
+
   return (
     <div>
       <Head>
@@ -93,8 +100,11 @@ export default function Home() {
       <main className="flex flex-col justify-center">
         <div className="flex flex-row bg-green-300 content-center">
           <h2 className="flex-auto p-4 text-2xl text-center">Learn SSR</h2>
-          <button className="w-sm border-2 m-4 p-2 bg-green-600 text-white border-2 border-gray" onClick={() => setShowAdd(!showAdd)}>
-            {showAdd ? 'Cancel' : 'Add Stock'}
+          <button
+            className="w-sm border-2 m-4 p-2 bg-green-600 text-white border-2 border-gray"
+            onClick={() => setShowAdd(!showAdd)}
+          >
+            {showAdd ? "Cancel" : "Add Stock"}
           </button>
         </div>
         {showAdd && (
@@ -110,11 +120,14 @@ export default function Home() {
                 <p className="text-xl p-2">Enter Ticker Symbol</p>
                 <input
                   className="border-2 rounded-lg p-2 m-2 text-2xl"
+                  placeholder="Enter Ticker Symbol"
                   defaultValue={``}
                   name="ticker"
                 />
               </fieldset>
-              <button className="bg-blue-300 p-4">Create Stock</button>
+              <button className="bg-blue-300 p-2 rounded-lg">
+                Create Stock
+              </button>
               {/* <button type="button" onClick={() => Auth.signOut()}>
                   Sign out
                 </button> */}
@@ -122,6 +135,7 @@ export default function Home() {
             {/* </AmplifyAuthenticator> */}
           </div>
         )}
+        {errors.length > 0 && <div>{JSON.stringify(errors, null, 2)}</div>}
 
         {/* <p className="p-5 text-xl text-center">{`${stocks.length} stocks`}</p> */}
 

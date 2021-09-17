@@ -15,7 +15,7 @@
       "function": {
         "addStock": {
           "deploymentBucketName": "amplify-learnnextssr-dev-140739-deployment",
-          "s3Key": "amplify-builds/addStock-5159766d2f496e394470-build.zip"
+          "s3Key": "amplify-builds/addStock-4977334352636a584751-build.zip"
         }
       }
     }

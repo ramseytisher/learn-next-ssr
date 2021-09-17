@@ -38,13 +38,10 @@ const listStocks = gql`
 exports.handler = async (event) => {
   try {
 
-    console.log("TRY FINDING: ", event.arguments.ticker)  
     const stockData = await axios({
       method: "get",
       url: `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${event.arguments.ticker}&apikey=6GUGOE51J9KLH0O2`,
     });
-
-    console.log("STOCK DATA >>>", stockData.data)
 
     const current = await axios({
       url: process.env.API_LEARNNEXTSSR_GRAPHQLAPIENDPOINTOUTPUT,
@@ -56,8 +53,6 @@ exports.handler = async (event) => {
         query: print(listStocks),
       },
     });
-
-    console.log("LIST STOCKS: ", current)
 
     if (
       current.data.data.listStocks.items.findIndex(
@@ -75,7 +70,7 @@ exports.handler = async (event) => {
           query: print(createStock),
           variables: {
             input: {
-              ticker: event.arguments.ticker,
+              ticker: event.arguments.ticker.toUpperCase(),
               description: stockData.data.Name,
               eps: stockData.data.EPS,
             },
@@ -85,13 +80,9 @@ exports.handler = async (event) => {
 
       return create.data.data.createStock;
     } else {
-      // We say we already have this stock
-      console.log('WE ALREADY HAVE THIS STOCK')
-      return "Stock already exists...";
+      throw new Error('We already have this')
     }
   } catch (err) {
-    console.log("Error adding stock: ", err);
-    return "Error adding stock ...";
+    throw new Error(err)
   }
-  return "Hello";
 };
