@@ -18,7 +18,6 @@ import {
 } from "../src/graphql/mutations";
 
 import { listStocks } from "../src/graphql/queries";
-import styles from "../styles/Home.module.css";
 
 Amplify.configure({ ...awsExports, ssr: true });
 
@@ -35,10 +34,11 @@ export async function getServerSideProps({ req }) {
 
 export default function Home() {
   const [stocks, setStocks] = useState([]);
+  const [showAdd, setShowAdd] = useState(false);
 
   useEffect(() => {
     getStocks();
-  }, [])
+  }, []);
 
   async function getStocks() {
     try {
@@ -61,6 +61,7 @@ export default function Home() {
         })
       );
       setStocks([...stocks, data.addStock]);
+      setShowAdd(false);
     } catch ({ errors }) {
       console.error(...errors);
       throw new Error(errors[0].message);
@@ -83,59 +84,71 @@ export default function Home() {
     }
   }
   return (
-    <div className={styles.container}>
+    <div>
       <Head>
-        <title>Amplify + Next.js</title>
+        <title>Learn SSR</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>Amplify + Next.js</h1>
-
-        <p className={styles.description}>
-          <code className={styles.code}>{stocks.length}</code>
-          stocks
-        </p>
-
-        <div className={styles.grid}>
-          {stocks.map((stock) => (
-            <div key={stock.id}>
-              <a
-                className={styles.card}
-                href={`/stock/${stock.id}`}
-                key={stock.id}
-              >
-                <h3>{stock.ticker}</h3>
-              </a>
-              <button onClick={() => handleDeleteStock(stock.id)}>x</button>
-            </div>
-          ))}
-
-          <div className={styles.card}>
-            <p className={styles.title}>New Stock</p>
+      <main className="flex flex-col justify-center">
+        <div className="flex flex-row bg-green-300 content-center">
+          <h2 className="flex-auto p-4 text-2xl text-center">Learn SSR</h2>
+          <button className="w-sm border-2 m-4 p-2 bg-green-600 text-white border-2 border-gray" onClick={() => setShowAdd(!showAdd)}>
+            {showAdd ? 'Cancel' : 'Add Stock'}
+          </button>
+        </div>
+        {showAdd && (
+          <div className="flex flex-col justify-center bg-blue-500">
+            <p className="text-center text-xl p-2">Add New Stock</p>
 
             {/* <AmplifyAuthenticator> */}
-            <form onSubmit={handleCreateStock}>
-              <fieldset>
-                <legend>Ticker</legend>
-                <input defaultValue={``} name="ticker" />
+            <form
+              className="flex flex-row p-4 align-middle justify-center"
+              onSubmit={handleCreateStock}
+            >
+              <fieldset className="flex flex-row">
+                <p className="text-xl p-2">Enter Ticker Symbol</p>
+                <input
+                  className="border-2 rounded-lg p-2 m-2 text-2xl"
+                  defaultValue={``}
+                  name="ticker"
+                />
               </fieldset>
-
-              {/* <fieldset>
-                  <legend>Content</legend>
-                  <textarea
-                    defaultValue="I built an Amplify app with Next.js!"
-                    name="content"
-                  />
-                </fieldset> */}
-
-              <button>Create Stock</button>
+              <button className="bg-blue-300 p-4">Create Stock</button>
               {/* <button type="button" onClick={() => Auth.signOut()}>
                   Sign out
                 </button> */}
             </form>
             {/* </AmplifyAuthenticator> */}
           </div>
+        )}
+
+        {/* <p className="p-5 text-xl text-center">{`${stocks.length} stocks`}</p> */}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-10">
+          {stocks.map((stock) => (
+            <div
+              className="flex flex-col border-4 p-6 rounded-sm "
+              key={stock.id}
+            >
+              <h3 className="text-xl text-center">{stock.ticker}</h3>
+              <div className="p-4">{JSON.stringify(stock, null, 2)}</div>
+              <div className="grid grid-cols-2 gap-4">
+                <a
+                  className="border-4 text-center border-green-400"
+                  href={`/stock/${stock.id}`}
+                >
+                  View Stock
+                </a>
+                <button
+                  className="border-2 border-red-300"
+                  onClick={() => handleDeleteStock(stock.id)}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       </main>
     </div>

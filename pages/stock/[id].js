@@ -50,5 +50,20 @@ export default function Stock() {
     }
   }
 
-  return <code>Stock: {JSON.stringify(stockInfo, null, 2)}</code>;
+  if(stockInfo) {
+    return (
+    <div className="flex flex-col justify-center">
+      <div className="flex flex-row bg-black text-white justify-center">
+        <a href={'/'} className="w-xl p-4">{`< Back`}</a>
+        <p className="flex-auto text-xl text-center p-4 ">
+          {stockInfo.description}
+        </p>
+      </div>
+      <code className="p-10 md:p-20">{JSON.stringify(stockInfo, null, 2)}</code>
+    </div>
+  )} else{
+    return (
+      <div>Getting info ...</div>
+    )
+  }
 }
