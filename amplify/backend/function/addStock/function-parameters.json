@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "api": {
+      "learnnextssr": [
+        "create",
+        "read",
+        "update",
+        "delete"
+      ]
+    }
+  },
+  "lambdaLayers": []
+}
